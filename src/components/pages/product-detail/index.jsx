@@ -12,9 +12,10 @@ export default function ProductDetail() {
   const [size, setSize] = useState("");
 
   const getProductById = async () => {
-    console.log('call');
-    
-    await axiosInstance.get(`/products/${productId}`)
+    console.log("call");
+
+    await axiosInstance
+      .get(`/products/${productId}`)
       .then((res) => {
         console.log("res.data.product", res.data);
         setProductData(res.data);
@@ -27,10 +28,9 @@ export default function ProductDetail() {
   };
 
   useEffect(() => {
-    getProductById();   
-    }, [productId]); // chia khi productId thay doi thi moi goi lai api
+    getProductById();
+  }, [productId]); // chia khi productId thay doi thi moi goi lai api
 
-  console.log("productId", productId);
 
   return productData ? (
     <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
@@ -57,7 +57,6 @@ export default function ProductDetail() {
         <div className="flex-1">
           <h1 className="font-medium text-2xl mt-2 ">{productData.name}</h1>
           <div className="flex items-center gap-1 mt-2 ">
-
             <img src={assets.star_icon} alt="" className="w-3 5" />
             <img src={assets.star_icon} alt="" className="w-3 5" />
             <img src={assets.star_icon} alt="" className="w-3 5" />

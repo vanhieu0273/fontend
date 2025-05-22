@@ -21,8 +21,6 @@ export default function ListProduct() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
 
-  console.log("categoryId", categoryId);
-  
 
   const getListProducts = async () => {
     setLoadingFetchData(true);
