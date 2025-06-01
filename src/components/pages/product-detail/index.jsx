@@ -31,7 +31,6 @@
 //     getProductById();
 //   }, [productId]); // chia khi productId thay doi thi moi goi lai api
 
-
 //   return productData ? (
 //     <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
 //       {/* product data */}
@@ -128,7 +127,6 @@
 //   );
 // }
 
-
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ShopContext } from "../../../context/ShopContextReal";
@@ -137,12 +135,11 @@ import axiosInstance from "../../../config/axios";
 
 export default function ProductDetail() {
   const { productId } = useParams();
-  
 
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState("");
   const [selectedColor, setSelectedColor] = useState(null);
-  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(undefined);
   const [stock, setStock] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -167,7 +164,7 @@ export default function ProductDetail() {
 
   const handleColorSelect = (color) => {
     setSelectedColor(color);
-    setSelectedSize(null);
+    setSelectedSize(undefined);
     setStock(null);
   };
 
@@ -179,35 +176,75 @@ export default function ProductDetail() {
     );
     const selected = variant?.sizes.find((s) => s.size._id === sizeId);
     setStock(selected?.quantity || null);
-    
   };
 
   const handleAddToCart = () => {
     if (!selectedColor || !selectedSize) {
-      setSuccessMessage("Vui lòng chọn màu và kích cỡ trước khi thêm vào giỏ hàng.");
+      setSuccessMessage(
+        "Vui lòng chọn màu và kích cỡ trước khi thêm vào giỏ hàng."
+      );
       return;
     }
 
     const variant = productData.variants.find(
       (v) => v.color._id === selectedColor._id
     );
-    const selected = variant?.sizes.find((s) => s.size._id === selectedSize);
+    const selected = variant?.sizes.find(
+      (s) => s.size._id === selectedSize?._id
+    );
 
     if (!selected || selected.quantity <= 0) {
       setSuccessMessage("Sản phẩm đã hết hàng.");
       return;
     }
 
-    // Gọi hàm addToCart từ ShopContext
-    // addToCart(productData._id, { size: selectedSize, color: selectedColor });
+    const localStorageCart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    // setSuccessMessage("Sản phẩm đã được thêm vào giỏ hàng thành công!");
-    // setTimeout(() => setSuccessMessage(""), 3000);
-    console.log(selectedColor, selectedSize, selected.quantity);
-    
+    const condition = localStorageCart.some(
+      (item) => item.productId === productData._id &&
+        item.size.name === selectedSize.name &&
+        item.color.name === selectedColor.name
+    );
+
+    if (condition) {
+      const updatedCart = localStorageCart.map((item) => {
+        if (
+          item.productId === productData._id &&
+          item.size.name === selectedSize.name &&
+          item.color.name === selectedColor.name
+        ) {
+          console.log('adding quantity');
+          
+          return {
+            ...item,
+            quantity: item.quantity + 1,
+          };
+        }
+        return item;
+      });
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      setSuccessMessage("Sản phẩm đã được cập nhật trong giỏ hàng.");
+    } else {
+      console.log("Adding new item to cart");
+      localStorage.setItem(
+        "cart",
+        JSON.stringify([
+          ...localStorageCart,
+          {
+            productId: productData._id,
+            size: selectedSize,
+            color: selectedColor,
+            price: productData.price,
+            productName: productData.name,
+            image: image,
+            quantity: 1,
+          },
+        ])
+      );
+    }
   };
 
-  const isAddToCartDisabled = !(selectedColor && selectedSize);
+  const isAddToCartDisabled = !(selectedColor && selectedSize?._id);
 
   return productData ? (
     <div className="border-t-2 pt-10 relative">
@@ -247,9 +284,7 @@ export default function ProductDetail() {
             <img src={assets.star_dull_icon} alt="" className="w-3.5" />
             <p className="pl-2">(122)</p>
           </div>
-          <p className="mt-5 text-3xl font-medium">
-            {productData.price}
-          </p>
+          <p className="mt-5 text-3xl font-medium">{productData.price}</p>
 
           {/* Select color */}
           <div className="mt-6">
@@ -282,7 +317,7 @@ export default function ProductDetail() {
                     <button
                       key={s.size._id}
                       className={`px-4 py-2 border rounded ${
-                        selectedSize === s.size._id
+                        selectedSize?._id === s?.size?._id
                           ? "border-orange-500"
                           : "bg-gray-100"
                       }`}
@@ -305,7 +340,9 @@ export default function ProductDetail() {
           <button
             onClick={handleAddToCart}
             className={`mt-6 px-8 py-3 text-sm text-white ${
-              isAddToCartDisabled ? "bg-gray-400 cursor-not-allowed" : "bg-black"
+              isAddToCartDisabled
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-black"
             }`}
             disabled={isAddToCartDisabled}
           >

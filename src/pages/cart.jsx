@@ -101,6 +101,9 @@ const Cart = () => {
     console.log('cartData set to:', tempData);
   }, [cartItems]);
 
+
+  // lấy từ local -> set vào state -> map data
+
   return (
     <div className="border-t pt-14 px-4 sm:px-10">
       <div className="mb-3">
