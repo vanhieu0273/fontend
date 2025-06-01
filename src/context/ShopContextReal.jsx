@@ -31,11 +31,11 @@ export const ShopContextProvider = (props) => {
   const currency = "VND";
   const delivery_free = 10;
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(true);
   const [cartItems, setCartItems] = useState(() => {
     try {
-      const savedCart = JSON.parse(localStorage.getItem('cartItems'));
+      const savedCart = JSON.parse(localStorage.getItem("cartItems"));
       return Array.isArray(savedCart) ? savedCart : [];
     } catch (e) {
       return [];
@@ -46,20 +46,20 @@ export const ShopContextProvider = (props) => {
 
   // Sync cartItems to localStorage on change
   useEffect(() => {
-    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = async (itemId, size, color, price, image,name) => {
+  const addToCart = async (itemId, size, color, price, image, name) => {
+    console.log("img", image);
 
-    console.log('img', image);
-    
     if (!size || !color) {
-      toast.error('Please select size and color');
+      toast.error("Please select size and color");
       return;
     }
 
     const existingIndex = cartItems.findIndex(
-      (item) => item._id === itemId && item.size === size && item.color === color
+      (item) =>
+        item._id === itemId && item.size === size && item.color === color
     );
 
     let updatedCart = [...cartItems];
@@ -87,9 +87,12 @@ export const ShopContextProvider = (props) => {
   };
 
   const updateQuantity = async (itemId, size, color, quantity) => {
-    //  kiểm tra đầu vào nếu trùng id, size, color thì tăng hoặc giảm quantity
-    const updatedCart = cartItems.map(item => {
-      if (item._id === itemId && item.size === size && item.color === color) {
+    const updatedCart = cartItems.map((item) => {
+      if (
+        item._id === itemId &&
+        item.size._id === size._id &&
+        item.color._id === color._id
+      ) {
         return { ...item, quantity };
       }
       return item;
@@ -106,23 +109,22 @@ export const ShopContextProvider = (props) => {
   const value = {
     currency,
     delivery_free,
-    search, setSearch,
-    showSearch, setShowSearch,
-    cartItems, addToCart,
-    getCartCount, updateQuantity,
-    getCartAmount, navigate
+    search,
+    setSearch,
+    showSearch,
+    setShowSearch,
+    cartItems,
+    addToCart,
+    getCartCount,
+    updateQuantity,
+    getCartAmount,
+    navigate,
   };
 
   return (
-    <ShopContext.Provider value={value}>
-      {props.children}
-    </ShopContext.Provider>
+    <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>
   );
 };
-
-
-
-
 
 // import { createContext, useEffect, useState } from "react";
 // import React from "react";
@@ -170,8 +172,6 @@ export const ShopContextProvider = (props) => {
 //   setCartItems(cartData);
 //   toast.success("✅ Thêm sản phẩm vào giỏ hàng thành công!");
 // };
-
-
 
 //   const getCartCount = () => {
 //     let totalCount = 0;

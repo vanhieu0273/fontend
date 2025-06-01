@@ -174,7 +174,7 @@ const Cart = () => {
                 onChange={e => {
                   const val = e.target.value;
                   if (val === '' || Number(val) < 1) return;
-                  updateQuantity(item.productId, item.sizeId, Number(val));
+                  updateQuantity(item._id, item.size, item.color, Number(val));
                 }}
                 className="border max-w-[60px] px-2 py-1 text-center rounded"
               />
