@@ -179,6 +179,10 @@ const Cart = () => {
                 className="border max-w-[60px] px-2 py-1 text-center rounded"
               />
 
+              <div>
+                {item.price * item.quantity} {/* Hiển thị tổng giá trị của sản phẩm */}
+              </div>
+
               <img
                 onClick={() => updateQuantity(item.productId, item.sizeId, 0)}
                 className="w-5 sm:w-6 cursor-pointer hover:opacity-70"
