@@ -6,6 +6,7 @@ import About from './pages/about'
 import Contact from './pages/contact'
 import Product from './pages/product'
 import Cart from './pages/cart'
+import Signup from './pages/signup'
 import Login from './pages/login'
 import PlaceOder from './pages/placeOder'
 import Orders from './pages/orders'
@@ -28,6 +29,7 @@ const App = () => {
         <Route path='/contact' element={<Contact/>}/>
         <Route path='/product/:productId' element={<Product/>}/>
         <Route path='/cart' element={<Cart/>}/>
+        <Route path='/signup' element={<Signup/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/signup' element={<SignUp/>}/>

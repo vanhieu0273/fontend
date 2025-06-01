@@ -21,8 +21,8 @@ const login = () => {
     console.log("data", data);
     try {
       const res = await axiosInstance.post("/users/login", {
-        email: data.username,
-        password: data.password,
+        p_userName: data.username,
+        p_password: data.password,
       });
 
       if (res.data) {
