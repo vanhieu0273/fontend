@@ -22,7 +22,6 @@
 
 import { createContext, useEffect, useState } from "react";
 import React from "react";
-import { products } from "../assets/frontend_assets/assets";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -50,20 +49,14 @@ export const ShopContextProvider = (props) => {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = async (itemId, size, color) => {
+  const addToCart = async (itemId, size, color, price, image,name) => {
+
+    console.log('img', image);
+    
     if (!size || !color) {
       toast.error('Please select size and color');
       return;
     }
-
-    const product = products.find((p) => p._id === itemId);
-    if (!product) {
-      toast.error('Product not found');
-      return;
-    }
-
-    const image = product.images[0]; // Assuming images is an array
-    const price = product.price;
 
     const existingIndex = cartItems.findIndex(
       (item) => item._id === itemId && item.size === size && item.color === color
@@ -76,6 +69,7 @@ export const ShopContextProvider = (props) => {
     } else {
       updatedCart.push({
         _id: itemId,
+        name,
         image,
         price,
         size,
@@ -93,6 +87,7 @@ export const ShopContextProvider = (props) => {
   };
 
   const updateQuantity = async (itemId, size, color, quantity) => {
+    //  kiểm tra đầu vào nếu trùng id, size, color thì tăng hoặc giảm quantity
     const updatedCart = cartItems.map(item => {
       if (item._id === itemId && item.size === size && item.color === color) {
         return { ...item, quantity };
@@ -109,7 +104,6 @@ export const ShopContextProvider = (props) => {
   };
 
   const value = {
-    products,
     currency,
     delivery_free,
     search, setSearch,

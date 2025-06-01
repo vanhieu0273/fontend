@@ -136,6 +136,8 @@ import axiosInstance from "../../../config/axios";
 export default function ProductDetail() {
   const { productId } = useParams();
 
+  const { addToCart } = useContext(ShopContext);
+
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState("");
   const [selectedColor, setSelectedColor] = useState(null);
@@ -198,50 +200,14 @@ export default function ProductDetail() {
       return;
     }
 
-    const localStorageCart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    const condition = localStorageCart.some(
-      (item) => item.productId === productData._id &&
-        item.size.name === selectedSize.name &&
-        item.color.name === selectedColor.name
+    addToCart(
+      productData._id,
+      selectedSize,
+      selectedColor,
+      productData.price,
+      productData.images[0],
+      productData.name
     );
-
-    if (condition) {
-      const updatedCart = localStorageCart.map((item) => {
-        if (
-          item.productId === productData._id &&
-          item.size.name === selectedSize.name &&
-          item.color.name === selectedColor.name
-        ) {
-          console.log('adding quantity');
-          
-          return {
-            ...item,
-            quantity: item.quantity + 1,
-          };
-        }
-        return item;
-      });
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
-      setSuccessMessage("Sản phẩm đã được cập nhật trong giỏ hàng.");
-    } else {
-      console.log("Adding new item to cart");
-      localStorage.setItem(
-        "cart",
-        JSON.stringify([
-          ...localStorageCart,
-          {
-            productId: productData._id,
-            size: selectedSize,
-            color: selectedColor,
-            price: productData.price,
-            productName: productData.name,
-            image: image,
-            quantity: 1,
-          },
-        ])
-      );
-    }
   };
 
   const isAddToCartDisabled = !(selectedColor && selectedSize?._id);

@@ -81,23 +81,24 @@ const Cart = () => {
     console.log('cartItems:', cartItems);
     const tempData = [];
 
-    for (const productId in cartItems) {
-      for (const sizeKey in cartItems[productId]) {
-        const quantity = cartItems[productId][sizeKey];
-        if (quantity > 0) {
-          console.log('productId:', productId, 'sizeKey:', sizeKey, 'quantity:', quantity);
-          // Bắt buộc ép kiểu string cho sizeId, phòng trường hợp sizeKey là object
-          const sizeId = typeof sizeKey === 'string' ? sizeKey : JSON.stringify(sizeKey);
-          tempData.push({
-            productId,
-            sizeId,
-            quantity,
-          });
-        }
-      }
-    }
+    // for (const productId in cartItems) {
+    //   for (const sizeKey in cartItems[productId]) {
+    //     const quantity = cartItems[productId][sizeKey];
+    //     if (quantity > 0) {
+    //       console.log('productId:', productId, 'sizeKey:', sizeKey, 'quantity:', quantity);
+    //       // Bắt buộc ép kiểu string cho sizeId, phòng trường hợp sizeKey là object
+    //       const sizeId = typeof sizeKey === 'string' ? sizeKey : JSON.stringify(sizeKey);
+    //       tempData.push({
+    //         productId,
+    //         sizeId,
+    //         quantity,
+    //         name,
+    //       });
+    //     }
+    //   }
+    // }
 
-    setCartData(tempData);
+    setCartData(cartItems);
     console.log('cartData set to:', tempData);
   }, [cartItems]);
 
@@ -116,28 +117,30 @@ const Cart = () => {
         )}
 
         {cartData.map((item, index) => {
+          console.log('Rendering item:', item);
+          
           // Ép id thành string khi tìm để tránh lỗi
-          const product = products.find(p => String(p._id) === String(item.productId));
-          if (!product) {
-            console.warn('Product not found for id:', item.productId);
-            return null;
-          }
+          // const product = products.find(p => String(p._id) === String(item.productId));
+          // if (!product) {
+          //   console.warn('Product not found for id:', item.productId);
+          //   return null;
+          // }
 
-          const variantWithSize = product.variants.find(variant =>
-            variant.sizes.some(size => size.size._id === item.sizeId)
-          );
+          // const variantWithSize = product.variants.find(variant =>
+          //   variant.sizes.some(size => size.size._id === item.sizeId)
+          // );
 
-          if (!variantWithSize) {
-            console.warn('Variant not found for sizeId:', item.sizeId, 'in product:', product.name);
-            return null;
-          }
+          // if (!variantWithSize) {
+          //   console.warn('Variant not found for sizeId:', item.sizeId, 'in product:', product.name);
+          //   return null;
+          // }
 
-          const sizeObj = variantWithSize.sizes.find(s => s.size._id === item.sizeId);
+          // const sizeObj = variantWithSize.sizes.find(s => s.size._id === item.sizeId);
 
-          if (!sizeObj) {
-            console.warn('Size not found:', item.sizeId, 'in variant:', variantWithSize);
-            return null;
-          }
+          // if (!sizeObj) {
+          //   console.warn('Size not found:', item.sizeId, 'in variant:', variantWithSize);
+          //   return null;
+          // }
 
           return (
             <div
@@ -146,19 +149,19 @@ const Cart = () => {
             >
               <div className="flex items-start gap-6">
                 <img
-                  src={product.images?.[0]}
-                  alt={product.name}
+                  src={item.image}
+                  alt={item.name}
                   className="w-16 sm:w-20 object-cover rounded"
                 />
                 <div>
-                  <p className="text-xs sm:text-lg font-medium">{product.name}</p>
+                  <p className="text-xs sm:text-lg font-medium">{item.name}</p>
                   <div className="flex items-center gap-5 mt-2">
                     <p className="font-semibold">
-                      {currency}
-                      {product.price}
+                      {/* {currency} */}
+                      {item.price}
                     </p>
                     <p className="px-2 sm:px-3 sm:py-1 border bg-slate-50 rounded">
-                      {sizeObj.size.name}
+                      {item.size.name}
                     </p>
                   </div>
                 </div>
