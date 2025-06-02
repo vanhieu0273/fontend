@@ -79,26 +79,56 @@ export const ShopContextProvider = (props) => {
     }
 
     setCartItems(updatedCart);
-    toast.success("Added to cart!");
+    toast.success("Thêm vào giỏ hàng thành công");
   };
 
   const getCartCount = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
+  // const updateQuantity = async (itemId, size, color, quantity) => {
+  //   const updatedCart = cartItems.map((item) => {
+  //     if (
+  //       item._id === itemId &&
+  //       item.size._id === size._id &&
+  //       item.color._id === color._id
+  //     ) {
+  //       return { ...item, quantity };
+  //     }
+  //     return item;
+  //   });
+  //   setCartItems(updatedCart);
+  // };
   const updateQuantity = async (itemId, size, color, quantity) => {
-    const updatedCart = cartItems.map((item) => {
-      if (
-        item._id === itemId &&
-        item.size._id === size._id &&
-        item.color._id === color._id
-      ) {
-        return { ...item, quantity };
-      }
-      return item;
-    });
+    let updatedCart;
+
+    if (quantity === 0) {
+      // Xóa sản phẩm ra khỏi giỏ hàng
+      updatedCart = cartItems.filter(
+        (item) =>
+          !(
+            item._id === itemId &&
+            item.size._id === size._id &&
+            item.color._id === color._id
+          )
+      );
+    } else {
+      // Cập nhật số lượng sản phẩm
+      updatedCart = cartItems.map((item) => {
+        if (
+          item._id === itemId &&
+          item.size._id === size._id &&
+          item.color._id === color._id
+        ) {
+          return { ...item, quantity };
+        }
+        return item;
+      });
+    }
+
     setCartItems(updatedCart);
   };
+
 
   const getCartAmount = () => {
     return cartItems.reduce((total, item) => {
@@ -125,114 +155,3 @@ export const ShopContextProvider = (props) => {
     <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>
   );
 };
-
-// import { createContext, useEffect, useState } from "react";
-// import React from "react";
-// import { products } from "../assets/frontend_assets/assets";
-// import { toast } from "react-toastify";
-// import { useNavigate } from "react-router-dom";
-
-// export const ShopContext = createContext();
-
-// export const ShopContextProvider = (props) => {
-//   const currency = "VND";
-//   const delivery_free = 10;
-
-//   const [search, setSearch] = useState('');
-//   const [showSearch, setShowSearch] = useState(true);
-//   const [cartItems, setCartItems] = useState({});
-//   const navigate = useNavigate();
-
-// const addToCart = async (itemId, sizeObj) => {
-//   console.log("addToCart called with:");
-//   console.log("itemId:", itemId);
-//   console.log("sizeObj:", sizeObj);
-
-//   // Lấy sizeId từ sizeObj.size nếu không có _id
-//   const sizeId = sizeObj?._id || sizeObj?.size;
-
-//   if (!sizeId) {
-//     toast.error('⚠️ Please select a size - sizeId is missing');
-//     console.error("Error: sizeId is undefined", sizeObj);
-//     return;
-//   }
-
-//   let cartData = structuredClone(cartItems);
-//   if (cartData[itemId]) {
-//     if (cartData[itemId][sizeId]) {
-//       cartData[itemId][sizeId] += 1;
-//     } else {
-//       cartData[itemId][sizeId] = 1;
-//     }
-//   } else {
-//     cartData[itemId] = {};
-//     cartData[itemId][sizeId] = 1;
-//   }
-
-//   setCartItems(cartData);
-//   toast.success("✅ Thêm sản phẩm vào giỏ hàng thành công!");
-// };
-
-//   const getCartCount = () => {
-//     let totalCount = 0;
-//     for (const productId in cartItems) {
-//       for (const sizeId in cartItems[productId]) {
-//         try {
-//           if (cartItems[productId][sizeId] > 0) {
-//             totalCount += cartItems[productId][sizeId];
-//           }
-//         } catch (error) {
-//           console.error("Error counting cart item:", error);
-//         }
-//       }
-//     }
-//     return totalCount;
-//   };
-
-//   const updateQuantity = async (itemId, size, quantity) => {
-//     const sizeId = typeof size === 'object' ? size._id : size;
-
-//     let cartData = structuredClone(cartItems);
-//     if (!cartData[itemId]) cartData[itemId] = {};
-//     cartData[itemId][sizeId] = quantity;
-//     setCartItems(cartData);
-//   };
-
-//   const getCartAmount = () => {
-//     let totalAmount = 0;
-
-//     for (const productId in cartItems) {
-//       const itemInfo = products.find(product => product._id === productId);
-//       if (!itemInfo) continue;
-
-//       for (const sizeId in cartItems[productId]) {
-//         try {
-//           if (cartItems[productId][sizeId] > 0) {
-//             totalAmount += itemInfo.price * cartItems[productId][sizeId];
-//           }
-//         } catch (error) {
-//           console.error("Error calculating cart amount:", error);
-//         }
-//       }
-//     }
-
-//     return totalAmount;
-//   };
-
-//   const value = {
-//     products,
-//     currency,
-//     delivery_free,
-//     search, setSearch,
-//     showSearch, setShowSearch,
-//     cartItems, addToCart,
-//     getCartCount, updateQuantity,
-//     getCartAmount, navigate
-//   };
-
-//   return (
-//     <ShopContext.Provider value={value}>
-//       {props.children}
-//     </ShopContext.Provider>
-//   );
-// };
