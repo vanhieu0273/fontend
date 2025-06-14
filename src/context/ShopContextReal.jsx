@@ -1,25 +1,3 @@
-// import { createContext } from "react";
-// import { products} from '../assets/frontend_assets/assets'
-
-// export const ShopContext = () => createContext();
-
-// const ShopContextProvider = (props) => {
-//     const currency = 'VND';
-//     const delivery_free = 10;
-
-//     const value = {
-//         products, currency, delivery_free
-//     }
-
-//     return (
-//         <ShopContext.Provider value={value}>
-//             {props.children}
-//         </ShopContext.Provider>
-//     )
-// }
-
-// export default ShopContextProvider;
-
 import { createContext, useEffect, useState } from "react";
 import React from "react";
 import { toast } from "react-toastify";
@@ -32,7 +10,7 @@ export const ShopContextProvider = (props) => {
   const delivery_free = 10;
 
   const [search, setSearch] = useState("");
-  const [showSearch, setShowSearch] = useState(true);
+  const [showSearch, setShowSearch] = useState(false);
   const [cartItems, setCartItems] = useState(() => {
     try {
       const savedCart = JSON.parse(localStorage.getItem("cartItems"));
@@ -44,14 +22,11 @@ export const ShopContextProvider = (props) => {
 
   const navigate = useNavigate();
 
-  // Sync cartItems to localStorage on change
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
 
   const addToCart = async (itemId, size, color, price, image, name) => {
-    console.log("img", image);
-
     if (!size || !color) {
       toast.error("Please select size and color");
       return;
@@ -86,24 +61,10 @@ export const ShopContextProvider = (props) => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
-  // const updateQuantity = async (itemId, size, color, quantity) => {
-  //   const updatedCart = cartItems.map((item) => {
-  //     if (
-  //       item._id === itemId &&
-  //       item.size._id === size._id &&
-  //       item.color._id === color._id
-  //     ) {
-  //       return { ...item, quantity };
-  //     }
-  //     return item;
-  //   });
-  //   setCartItems(updatedCart);
-  // };
   const updateQuantity = async (itemId, size, color, quantity) => {
     let updatedCart;
 
     if (quantity === 0) {
-      // Xóa sản phẩm ra khỏi giỏ hàng
       updatedCart = cartItems.filter(
         (item) =>
           !(
@@ -113,7 +74,6 @@ export const ShopContextProvider = (props) => {
           )
       );
     } else {
-      // Cập nhật số lượng sản phẩm
       updatedCart = cartItems.map((item) => {
         if (
           item._id === itemId &&
@@ -129,11 +89,15 @@ export const ShopContextProvider = (props) => {
     setCartItems(updatedCart);
   };
 
-
   const getCartAmount = () => {
     return cartItems.reduce((total, item) => {
       return total + item.price * item.quantity;
     }, 0);
+  };
+
+
+  const formatPrice = (amount) => {
+    return `${amount.toLocaleString('vi-VN')} ${currency}`;
   };
 
   const value = {
@@ -149,6 +113,7 @@ export const ShopContextProvider = (props) => {
     updateQuantity,
     getCartAmount,
     navigate,
+    formatPrice,
   };
 
   return (

@@ -5,8 +5,11 @@ import Title from "../../../components/Title";
 import ProductItem from "../../../components/ProductItem";
 import axiosInstance from "../../../config/axios";
 import { Pagination, Radio, Slider } from "antd";
+import { useParams, useSearchParams } from "react-router-dom";
 
-const defaultLimit = 9;
+
+
+const defaultLimit = 8;
 
 export default function ListProduct() {
   const { search, showSearch } = useContext(ShopContext);
@@ -26,7 +29,14 @@ export default function ListProduct() {
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(5000000);
   const [priceRange, setPriceRange] = useState([0, 5000000]);
-  const [maxPriceFromData, setMaxPriceFromData] = useState(5000000); // Cố định
+  const [maxPriceFromData, setMaxPriceFromData] = useState(5000000);
+
+  const [searchParams] = useSearchParams();
+
+  // Lấy giá trị của tham số 'search'
+  const searchValue = searchParams.get('search');
+
+  console.log('search', searchValue);
 
   const getListProducts = async () => {
     setLoadingFetchData(true);
@@ -39,6 +49,9 @@ export default function ListProduct() {
           limit: defaultLimit,
           category: categoryId,
           sizes: sizeId,
+          search: searchValue
+
+
         },
       });
 
@@ -73,7 +86,7 @@ export default function ListProduct() {
 
   useEffect(() => {
     getListProducts();
-  }, [currentPage, categoryId, sizeId, minPrice, maxPrice]);
+  }, [currentPage, categoryId, sizeId, minPrice, maxPrice, searchValue]);
 
   useEffect(() => {
     getCategory();
@@ -129,9 +142,8 @@ export default function ListProduct() {
 
         {/* Lọc giá */}
         <div
-          className={`border border-gray-300 pl-5 py-3 mt-6 ${
-            showFilter ? "" : "hidden"
-          } sm:block`}
+          className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilter ? "" : "hidden"
+            } sm:block`}
         >
           <p className="mb-3 text-sm font-medium">Giá (VNĐ)</p>
           <Slider
@@ -152,9 +164,8 @@ export default function ListProduct() {
 
         {/* Lọc danh mục */}
         <div
-          className={`border border-gray-300 pl-5 py-3 mt-6 ${
-            showFilter ? "" : "hidden"
-          } sm:block`}
+          className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilter ? "" : "hidden"
+            } sm:block`}
         >
           <p className="mb-3 text-sm font-medium">Danh Mục</p>
           <Radio.Group
@@ -170,9 +181,8 @@ export default function ListProduct() {
 
         {/* Lọc kích cỡ */}
         <div
-          className={`border border-gray-300 pl-5 py-3 my-5 ${
-            showFilter ? "" : "hidden"
-          } sm:block`}
+          className={`border border-gray-300 pl-5 py-3 my-5 ${showFilter ? "" : "hidden"
+            } sm:block`}
         >
           <p className="mb-3 text-sm font-medium">Kích Cỡ</p>
           <Radio.Group
@@ -205,6 +215,10 @@ export default function ListProduct() {
           <div className="flex justify-center items-center h-[50vh]">
             loading...
           </div>
+        ) : filterProducts.length === 0 ? (
+          <div className="flex justify-center items-center h-[50vh] text-lg text-gray-500">
+            Đang cập nhật sản phẩm
+          </div>
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6">
@@ -218,11 +232,13 @@ export default function ListProduct() {
                 />
               ))}
             </div>
-            <Pagination
-              onChange={handlePageChange}
-              current={currentPage}
-              total={totalPage * defaultLimit}
-            />
+            <div className="flex justify-center mt-8">
+              <Pagination
+                onChange={handlePageChange}
+                current={currentPage}
+                total={totalPage * defaultLimit}
+              />
+            </div>
           </>
         )}
       </div>
