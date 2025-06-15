@@ -39,7 +39,7 @@ const AdOrder = () => {
     setLoading(true);
     try {
       const params = filterStatus === "all" ? {} : { status: filterStatus };
-      const res = await axiosInstance.get("/payment/orders", { params });
+      const res = await axiosInstance.get("/payment/orders?page=1&limit=20", { params });
       setOrders(Array.isArray(res.data.orders) ? res.data.orders : []);
     } catch (err) {
       console.error("Lỗi khi lấy danh sách đơn hàng:", err);
