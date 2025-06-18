@@ -51,7 +51,6 @@ const App = () => {
         <Route path='/list-order' element={<ListOrder />} />
         <Route path='/orders' element={<Orders />} />
         <Route path="/order/:orderId" element={<OrderDetail />} />
-        {/* <Route path='/admin' element={<Admin/>}/> */}
         <Route path='/admin' element={<Admin />}>
           <Route index element={<Navigate to="products" replace />} />
           <Route path='products' element={<AdProduct />} />

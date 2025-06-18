@@ -4,6 +4,10 @@ import Title from '../components/Title';
 import { assets } from '../assets/frontend_assets/assets';
 import CartTotal from '../components/CartTotal';
 
+const formatVND = (number) => {
+  return number.toLocaleString('vi-VN');
+};
+
 const Cart = () => {
   const { products, currency, cartItems, updateQuantity, navigate } = useContext(ShopContext);
   const [cartData, setCartData] = useState([]);
@@ -40,7 +44,9 @@ const Cart = () => {
                 <div>
                   <p className="text-xs sm:text-lg font-medium">{item.name}</p>
                   <div className="flex items-center gap-3 mt-2 flex-wrap text-sm sm:text-base">
-                    <p className="px-2 sm:px-3 sm:py-1 border bg-slate-50 rounded">{item.price}</p>
+                    <p className="px-2 sm:px-3 sm:py-1 border bg-slate-50 rounded">
+                      {formatVND(item.price)} đ
+                    </p>
                     <p className="px-2 sm:px-3 sm:py-1 border bg-slate-50 rounded">{item.size.name}</p>
                     <p className="px-2 sm:px-3 sm:py-1 border bg-slate-50 rounded">{item.color.name}</p>
                   </div>
@@ -62,7 +68,7 @@ const Cart = () => {
 
               {/* Tổng giá */}
               <div className="font-semibold">
-                {item.price * item.quantity}
+                {formatVND(item.price * item.quantity)} đ
               </div>
 
               {/* Nút xoá */}

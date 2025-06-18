@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../config/axios";
 import { FaEdit } from "react-icons/fa";
+import { Pagination } from "antd";
 
 const ORDER_STATUS_OPTIONS = [
   { value: "pending", label: "Chờ xử lý" },
@@ -16,6 +17,8 @@ const PAYMENT_STATUS_OPTIONS = [
   { value: "completed", label: "Đã thanh toán" },
   { value: "failed", label: "Thanh toán thất bại" },
 ];
+
+const PAGE_SIZE = 10;
 
 const getOrderStatusVN = (status) => {
   const found = ORDER_STATUS_OPTIONS.find((s) => s.value === status);
@@ -35,12 +38,21 @@ const AdOrder = () => {
   const [orderDetail, setOrderDetail] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  const fetchOrders = async () => {
+  // State cho phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalOrders, setTotalOrders] = useState(0);
+
+  // Lấy danh sách đơn hàng với phân trang
+  const fetchOrders = async (page = 1) => {
     setLoading(true);
     try {
       const params = filterStatus === "all" ? {} : { status: filterStatus };
-      const res = await axiosInstance.get("/payment/orders?page=1&limit=20", { params });
+      const res = await axiosInstance.get("/payment/orders", {
+        params: { ...params, page, limit: PAGE_SIZE },
+      });
       setOrders(Array.isArray(res.data.orders) ? res.data.orders : []);
+      setTotalOrders(Number(res.data?.pagination?.total) || 0);
+      setCurrentPage(Number(res.data?.pagination?.currentPage) || page);
     } catch (err) {
       console.error("Lỗi khi lấy danh sách đơn hàng:", err);
     } finally {
@@ -49,9 +61,9 @@ const AdOrder = () => {
   };
 
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(currentPage);
     // eslint-disable-next-line
-  }, [filterStatus]);
+  }, [filterStatus, currentPage]);
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -83,24 +95,27 @@ const AdOrder = () => {
     if (!orderDetail) return;
     setSaving(true);
     try {
-      // Cập nhật trạng thái đơn hàng
       await axiosInstance.patch(
         `/payment/orders/${orderDetail._id}/status`,
         { status: orderDetail.status }
       );
-      // Cập nhật trạng thái thanh toán
       await axiosInstance.patch(
         `/payment/orders/${orderDetail._id}/payment`,
         { payment_status: orderDetail.payment_status }
       );
       setSelectedOrderId(null);
       setOrderDetail(null);
-      fetchOrders();
+      fetchOrders(currentPage);
     } catch (err) {
       alert("Lưu thay đổi thất bại!");
     } finally {
       setSaving(false);
     }
+  };
+
+  // Xử lý chuyển trang
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -109,7 +124,10 @@ const AdOrder = () => {
         <select
           className="border px-3 py-2 rounded"
           value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
+          onChange={(e) => {
+            setFilterStatus(e.target.value);
+            setCurrentPage(1);
+          }}
         >
           <option value="all">Tất cả</option>
           {ORDER_STATUS_OPTIONS.map((opt) => (
@@ -169,6 +187,17 @@ const AdOrder = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-8">
+        <Pagination
+          current={currentPage}
+          total={totalOrders}
+          pageSize={PAGE_SIZE}
+          onChange={handlePageChange}
+          showSizeChanger={false}
+        />
       </div>
 
       {/* Form chỉnh sửa đơn hàng */}

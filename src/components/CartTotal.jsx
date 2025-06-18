@@ -4,31 +4,39 @@ import Title from './Title'
 
 const CartTotal = () => {
 
-    const {currency, delivery_free, getCartAmount} = useContext(ShopContext)
+    const { currency, delivery_free, getCartAmount } = useContext(ShopContext)
 
-  return (
-    <div className='w-full '>
-        <div className='text-2xl'>
-            <Title text1={'CART'} text2={'TOTALS'}/>
-        </div>
-        <div className='flex flex-col gap-2 mt-2 text-sm'>
-            <div className='flex justify-between'>
-                <p>SubTotal</p>
-                <p>{currency} {getCartAmount()}.00</p>
+    const formatCurrency = (amount) => {
+        return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+    }
+
+    const subTotal = getCartAmount()
+    const total = subTotal 
+
+    return (
+        <div className='w-full'>
+            <div className='text-2xl'>
+                <Title text1={'TỔNG'} text2={'GIỎ HÀNG'} />
             </div>
-            <hr />
-            {/* <div className='flex justify-between'>
-                <p>Shipping fee </p>
-                <p>{currency} {delivery_free}.00</p>
-            </div> */}
-            {/* <hr /> */}
-            <div className='flex justify-between'>
-                <b>Total</b>
-                <b>{currency} {getCartAmount() === 0 ? 0 : getCartAmount() + delivery_free}.00</b>
+            <div className='flex flex-col gap-2 mt-2 text-sm'>
+                <div className='flex justify-between'>
+                    <p>Tạm tính</p>
+                    <p>{formatCurrency(subTotal)}</p>
+                </div>
+                <hr />
+                {/* Nếu muốn hiện phí vận chuyển thì mở phần này */}
+                {/* <div className='flex justify-between'>
+                    <p>Phí vận chuyển</p>
+                    <p>{formatCurrency(delivery_free)}</p>
+                </div>
+                <hr /> */}
+                <div className='flex justify-between'>
+                    <b>Tổng cộng</b>
+                    <b>{formatCurrency(total)}</b>
+                </div>
             </div>
         </div>
-    </div>
-  )
+    )
 }
 
 export default CartTotal

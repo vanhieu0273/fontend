@@ -232,8 +232,8 @@ const PlaceOrder = () => {
             <div className="mt-6 lg:mt-0">
               <h3 className="font-semibold mb-2">Vận chuyển</h3>
               <div className="p-3 border border-gray-300 rounded text-sm">
-                Giao hàng nội thành Hà Nội {'>'} 500k -{' '}
-                <span className="text-green-600 font-medium">Miễn phí</span>
+                Phí Vận Chuyển - {' '}
+                <span className="text-red-500 font-medium">20.000</span>
               </div>
             </div>
 
@@ -301,11 +301,11 @@ const PlaceOrder = () => {
           </div>
           <div className="flex justify-between mb-2">
             <span>Phí vận chuyển</span>
-            <span className="text-green-600">Miễn phí</span>
+            <span className="text-red-500">20.000đ</span>
           </div>
           <div className="flex justify-between font-semibold border-t border-gray-300 pt-2 mt-2 text-base">
             <span>Tổng cộng</span>
-            <span>{totalPrice.toLocaleString()}đ</span>
+            <span>{(totalPrice + 20000).toLocaleString() }đ</span>
           </div>
         </div>
 
@@ -340,7 +340,12 @@ const PlaceOrder = () => {
                   ['Tên tài khoản', bankDetails.account_name],
                   ['Ngân hàng', bankDetails.bank_name],
                   ['Số tiền', bankDetails.transfer_amount.toLocaleString() + 'đ'],
-                  ['Nội dung chuyển khoản', bankDetails.transfer_content],
+                  // Sửa dòng này để hiển thị đầy đủ nội dung chuyển khoản
+                  ['Nội dung chuyển khoản', (
+                    <span className="break-all text-gray-800 text-sm">
+                      {bankDetails.transfer_content}
+                    </span>
+                  )],
                 ].map(([label, value], idx) => (
                   <div
                     key={idx}
@@ -348,13 +353,28 @@ const PlaceOrder = () => {
                   >
                     <span className="font-medium truncate">{label}:</span>
                     <div className="flex items-center gap-4 min-w-0">
-                      <p className="truncate text-gray-800 text-sm">{value}</p>
-                      <button
-                        onClick={() => copyToClipboard(value)}
-                        className="text-blue-600 text-xs hover:underline hover:text-blue-800 whitespace-nowrap"
-                      >
-                        Sao chép
-                      </button>
+                      {/* Nếu là nội dung chuyển khoản thì không truncate */}
+                      {label === 'Nội dung chuyển khoản' ? (
+                        <>
+                          {value}
+                          <button
+                            onClick={() => copyToClipboard(bankDetails.transfer_content)}
+                            className="text-blue-600 text-xs hover:underline hover:text-blue-800 whitespace-nowrap"
+                          >
+                            Sao chép
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <p className="truncate text-gray-800 text-sm">{value}</p>
+                          <button
+                            onClick={() => copyToClipboard(value)}
+                            className="text-blue-600 text-xs hover:underline hover:text-blue-800 whitespace-nowrap"
+                          >
+                            Sao chép
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -381,4 +401,4 @@ const PlaceOrder = () => {
 
 export default PlaceOrder;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
