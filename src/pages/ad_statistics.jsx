@@ -151,7 +151,7 @@ const StatisticsPage = () => {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
@@ -181,141 +181,90 @@ const StatisticsPage = () => {
               <div className="text-4xl">🛍️</div>
             </div>
           </div>
+
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-lg p-6 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-orange-100 text-sm font-medium">Trung Bình/Đơn</p>
+                <p className="text-3xl font-bold">
+                  {statistics.totalOrders > 0 
+                    ? formatCurrency(Math.round(statistics.totalRevenue / statistics.totalOrders))
+                    : formatCurrency(0)
+                  }
+                </p>
+              </div>
+              <div className="text-4xl">📊</div>
+            </div>
+          </div>
         </div>
 
-        {/* Revenue Chart */}
+        {/* Simple Revenue Chart */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <h2 className="text-lg font-semibold text-gray-800 mb-6">
             Biểu Đồ Doanh Thu {statistics?.period === 'daily' ? 'Theo Ngày' : 'Theo Tháng'}
           </h2>
           
-          {/* Chart Container */}
-          <div className="relative">
-            <div className="h-80 w-full overflow-x-auto">
-              <div className="min-w-full h-full flex flex-col">
-                {/* Y-axis labels */}
-                <div className="flex-1 relative">
-                  <div className="absolute inset-0 flex flex-col justify-between text-xs text-gray-500 pr-2">
-                    {(() => {
-                      const maxRevenue = Math.max(...(statistics?.revenueData?.map(d => d.revenue) || [0]));
-                      const steps = 5;
-                      return Array.from({ length: steps + 1 }, (_, i) => {
-                        const value = Math.round((maxRevenue / steps) * i);
-                        return (
-                          <div key={i} className="flex items-center">
-                            <span>{formatCurrency(value)}</span>
-                            <div className="flex-1 h-px bg-gray-200 ml-2"></div>
-                          </div>
-                        );
-                      });
-                    })()}
+          <div className="space-y-4">
+            {(statistics?.revenueData || []).map((day, index) => {
+              const maxRevenue = Math.max(...(statistics?.revenueData?.map(d => d.revenue) || [0]));
+              const percentage = maxRevenue > 0 ? (day.revenue / maxRevenue) * 100 : 0;
+              
+              return (
+                <div key={index} className="flex items-center space-x-4">
+                  <div className="w-24 text-sm text-gray-600 font-medium">
+                    {formatDate(day.period)}
                   </div>
-                  
-                  {/* Chart lines */}
-                  <div className="absolute inset-0 flex items-end">
-                    <svg className="w-full h-full" viewBox={`0 0 ${Math.max((statistics?.revenueData?.length || 1) * 60, 300)} 200`} preserveAspectRatio="none">
-                      {/* Grid lines */}
-                      {Array.from({ length: 6 }, (_, i) => (
-                        <line
-                          key={i}
-                          x1="0"
-                          y1={i * 40}
-                          x2={(statistics?.revenueData?.length || 1) * 60}
-                          y2={i * 40}
-                          stroke="#e5e7eb"
-                          strokeWidth="1"
-                        />
-                      ))}
-                      
-                      {/* Data line */}
-                      <polyline
-                        fill="none"
-                        stroke="url(#gradient)"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        points={(statistics?.revenueData || []).map((day, index) => {
-                          const maxRevenue = Math.max(...(statistics?.revenueData?.map(d => d.revenue) || [0]));
-                          const x = index * 60 + 30;
-                          const y = maxRevenue > 0 ? 200 - (day.revenue / maxRevenue) * 160 : 200;
-                          return `${x},${y}`;
-                        }).join(' ')}
-                      />
-                      
-                      {/* Data points */}
-                      {(statistics?.revenueData || []).map((day, index) => {
-                        const maxRevenue = Math.max(...(statistics?.revenueData?.map(d => d.revenue) || [0]));
-                        const x = index * 60 + 30;
-                        const y = maxRevenue > 0 ? 200 - (day.revenue / maxRevenue) * 160 : 200;
-                        return (
-                          <g key={index}>
-                            <circle
-                              cx={x}
-                              cy={y}
-                              r="4"
-                              fill="white"
-                              stroke="#3b82f6"
-                              strokeWidth="2"
-                              className="cursor-pointer hover:r-6 transition-all duration-200"
-                            />
-                            {/* Tooltip */}
-                            <foreignObject
-                              x={x - 50}
-                              y={y - 60}
-                              width="100"
-                              height="50"
-                              className="hidden group-hover:block"
-                            >
-                              <div className="bg-gray-800 text-white text-xs p-2 rounded shadow-lg">
-                                <div className="font-medium">{day.period}</div>
-                                <div>{formatCurrency(day.revenue)}</div>
-                              </div>
-                            </foreignObject>
-                          </g>
-                        );
-                      })}
-                      
-                      {/* Gradient definition */}
-                      <defs>
-                        <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
-                          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  </div>
-                </div>
-                
-                {/* X-axis labels */}
-                <div className="h-12 flex justify-between items-center mt-4">
-                  {(statistics?.revenueData || []).map((day, index) => (
-                    <div key={index} className="flex-1 text-center">
-                      <div className="text-xs text-gray-600 font-medium">
-                        {day.period}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {formatCurrency(day.revenue)}
+                  <div className="flex-1">
+                    <div className="w-full bg-gray-200 rounded-full h-8 relative">
+                      <div 
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-8 rounded-full transition-all duration-300 flex items-center justify-end pr-3"
+                        style={{ width: `${percentage}%` }}
+                      >
+                        {day.revenue > 0 && (
+                          <span className="text-white text-sm font-medium">
+                            {formatCurrency(day.revenue)}
+                          </span>
+                        )}
                       </div>
                     </div>
-                  ))}
+                  </div>
+                  <div className="w-32 text-right">
+                    <div className="text-sm font-medium text-gray-900">
+                      {formatCurrency(day.revenue)}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {percentage.toFixed(1)}%
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Chart Summary */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {formatCurrency(statistics?.totalRevenue || 0)}
+                </div>
+                <div className="text-sm text-gray-600">Tổng doanh thu</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-green-600">
+                  {formatCurrency(Math.round((statistics?.totalRevenue || 0) / (statistics?.revenueData?.length || 1)))}
+                </div>
+                <div className="text-sm text-gray-600">
+                  Trung bình/{statistics?.period === 'daily' ? 'ngày' : 'tháng'}
                 </div>
               </div>
-            </div>
-            
-            {/* Chart Controls */}
-            <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">Tổng doanh thu: <span className="font-semibold text-blue-600">{formatCurrency(statistics?.totalRevenue || 0)}</span></span>
-                <span className="text-sm text-gray-600">
-                  Trung bình/{statistics?.period === 'daily' ? 'ngày' : 'tháng'}: <span className="font-semibold text-green-600">{formatCurrency(Math.round((statistics?.totalRevenue || 0) / (statistics?.revenueData?.length || 1)))}</span>
-                </span>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-gray-500">{statistics?.period === 'daily' ? 'Ngày' : 'Tháng'} có doanh thu:</span>
-                <span className="text-xs font-medium text-blue-600">
+              <div>
+                <div className="text-2xl font-bold text-purple-600">
                   {(statistics?.revenueData || []).filter(day => day.revenue > 0).length}/{statistics?.revenueData?.length || 0}
-                </span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  {statistics?.period === 'daily' ? 'Ngày' : 'Tháng'} có doanh thu
+                </div>
               </div>
             </div>
           </div>

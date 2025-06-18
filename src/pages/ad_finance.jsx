@@ -48,6 +48,7 @@ const FinancePage = () => {
   };
 
   const formatCurrency = (amount) => {
+    if (amount === null || amount === undefined) return 'N/A';
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'
@@ -60,11 +61,24 @@ const FinancePage = () => {
   };
 
   const getProfitColor = (profit) => {
+    if (profit === null || profit === undefined) return 'text-gray-600';
     return profit >= 0 ? 'text-green-600' : 'text-red-600';
   };
 
   const getProfitBgColor = (profit) => {
+    if (profit === null || profit === undefined) return 'bg-gray-100';
     return profit >= 0 ? 'bg-green-100' : 'bg-red-100';
+  };
+
+  const calculateProfit = (revenue, cost) => {
+    if (revenue === null || cost === null) return null;
+    return revenue - cost;
+  };
+
+  const calculateProfitMargin = (revenue, cost) => {
+    if (revenue === null || cost === null || revenue === 0) return 'N/A';
+    const profit = revenue - cost;
+    return `${((profit / revenue) * 100).toFixed(1)}%`;
   };
 
   if (loading) {
@@ -98,6 +112,10 @@ const FinancePage = () => {
   }
 
   const { summary, expenses, statsData, topSellingProducts } = financialData;
+
+  // Calculate actual profit and margin
+  const actualProfit = calculateProfit(summary.totalRevenue, summary.totalCost);
+  const actualProfitMargin = calculateProfitMargin(summary.totalRevenue, summary.totalCost);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -172,35 +190,72 @@ const FinancePage = () => {
             </div>
           </div>
 
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg shadow-lg p-6 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-orange-100 text-sm font-medium">Tổng Chi Phí</p>
+                <p className="text-2xl font-bold">{formatCurrency(summary.totalCost)}</p>
+                <p className="text-sm opacity-90">
+                  {summary.totalCost === null ? 'Chưa có dữ liệu' : 'Đã cập nhật'}
+                </p>
+              </div>
+              <div className="text-4xl">📊</div>
+            </div>
+          </div>
+
           <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-lg shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-red-100 text-sm font-medium">Tổng Chi Phí</p>
+                <p className="text-red-100 text-sm font-medium">Tổng Chi Phí Vận Hành</p>
                 <p className="text-2xl font-bold">{formatCurrency(summary.totalExpenses)}</p>
               </div>
               <div className="text-4xl">💸</div>
             </div>
           </div>
 
-          <div className={`rounded-lg shadow-lg p-6 text-white ${summary.profit >= 0 ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-red-500 to-red-600'}`}>
+          <div className={`rounded-lg shadow-lg p-6 text-white ${actualProfit !== null && actualProfit >= 0 ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-gray-500 to-gray-600'}`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm font-medium ${summary.profit >= 0 ? 'text-green-100' : 'text-red-100'}`}>Lợi Nhuận</p>
-                <p className="text-2xl font-bold">{formatCurrency(summary.profit)}</p>
-                <p className="text-sm opacity-90">Biên lợi nhuận: {summary.profitMargin}</p>
+                <p className={`text-sm font-medium ${actualProfit !== null && actualProfit >= 0 ? 'text-green-100' : 'text-gray-100'}`}>Lợi Nhuận</p>
+                <p className="text-2xl font-bold">{formatCurrency(actualProfit)}</p>
+                <p className="text-sm opacity-90">
+                  Biên lợi nhuận: {actualProfitMargin}
+                </p>
               </div>
-              <div className="text-4xl">{summary.profit >= 0 ? '📈' : '📉'}</div>
+              <div className="text-4xl">
+                {actualProfit === null ? '❓' : actualProfit >= 0 ? '📈' : '📉'}
+              </div>
             </div>
           </div>
+        </div>
 
-          <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-purple-100 text-sm font-medium">Đơn Hàng & Sản Phẩm</p>
-                <p className="text-2xl font-bold">{summary.totalOrders}</p>
-                <p className="text-sm opacity-90">{summary.totalProductsSold} sản phẩm</p>
+        {/* Additional Info Card */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-4 bg-purple-50 rounded-lg">
+              <h3 className="text-lg font-semibold text-purple-800 mb-2">Đơn Hàng & Sản Phẩm</h3>
+              <div className="text-2xl font-bold text-purple-600 mb-1">{summary.totalOrders}</div>
+              <p className="text-sm text-purple-700">{summary.totalProductsSold} sản phẩm</p>
+            </div>
+
+            <div className="text-center p-4 bg-yellow-50 rounded-lg">
+              <h3 className="text-lg font-semibold text-yellow-800 mb-2">Trạng Thái Dữ Liệu</h3>
+              <div className="text-lg font-bold text-yellow-600 mb-1">
+                {summary.totalCost === null ? '⚠️ Thiếu Chi Phí' : '✅ Đầy Đủ'}
               </div>
-              <div className="text-4xl">📦</div>
+              <p className="text-sm text-yellow-700">
+                {summary.totalCost === null ? 'Cần cập nhật giá vốn sản phẩm' : 'Dữ liệu đã hoàn chỉnh'}
+              </p>
+            </div>
+
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <h3 className="text-lg font-semibold text-blue-800 mb-2">Tỷ Lệ Chi Phí/Doanh Thu</h3>
+              <div className="text-lg font-bold text-blue-600 mb-1">
+                {summary.totalRevenue > 0 ? `${((summary.totalExpenses / summary.totalRevenue) * 100).toFixed(1)}%` : 'N/A'}
+              </div>
+              <p className="text-sm text-blue-700">
+                {summary.totalExpenses > summary.totalRevenue ? 'Chi phí cao hơn doanh thu' : 'Chi phí thấp hơn doanh thu'}
+              </p>
             </div>
           </div>
         </div>
@@ -220,7 +275,12 @@ const FinancePage = () => {
                   <div className="absolute inset-0 flex flex-col justify-between text-xs text-gray-500 pr-2">
                     {(() => {
                       const maxValue = Math.max(
-                        ...statsData.map(d => Math.max(d.revenue, d.expense, Math.abs(d.profit)))
+                        ...statsData.map(d => Math.max(
+                          d.revenue || 0, 
+                          d.cost || 0, 
+                          d.expense || 0, 
+                          Math.abs(d.profit || 0)
+                        ))
                       );
                       const steps = 5;
                       return Array.from({ length: steps + 1 }, (_, i) => {
@@ -254,14 +314,20 @@ const FinancePage = () => {
                       {/* Data bars */}
                       {statsData.map((day, index) => {
                         const maxValue = Math.max(
-                          ...statsData.map(d => Math.max(d.revenue, d.expense, Math.abs(d.profit)))
+                          ...statsData.map(d => Math.max(
+                            d.revenue || 0, 
+                            d.cost || 0, 
+                            d.expense || 0, 
+                            Math.abs(d.profit || 0)
+                          ))
                         );
                         const x = index * 80 + 10;
                         const barWidth = 20;
                         
-                        const revenueHeight = maxValue > 0 ? (day.revenue / maxValue) * 160 : 0;
-                        const expenseHeight = maxValue > 0 ? (day.expense / maxValue) * 160 : 0;
-                        const profitHeight = maxValue > 0 ? (Math.abs(day.profit) / maxValue) * 160 : 0;
+                        const revenueHeight = maxValue > 0 ? ((day.revenue || 0) / maxValue) * 160 : 0;
+                        const costHeight = maxValue > 0 ? ((day.cost || 0) / maxValue) * 160 : 0;
+                        const expenseHeight = maxValue > 0 ? ((day.expense || 0) / maxValue) * 160 : 0;
+                        const profitHeight = maxValue > 0 ? (Math.abs(day.profit || 0) / maxValue) * 160 : 0;
                         
                         return (
                           <g key={index}>
@@ -275,9 +341,19 @@ const FinancePage = () => {
                               opacity="0.8"
                             />
                             
-                            {/* Expense bar */}
+                            {/* Cost bar */}
                             <rect
                               x={x + barWidth + 2}
+                              y={200 - costHeight}
+                              width={barWidth}
+                              height={costHeight}
+                              fill="#f59e0b"
+                              opacity="0.8"
+                            />
+                            
+                            {/* Expense bar */}
+                            <rect
+                              x={x + (barWidth + 2) * 2}
                               y={200 - expenseHeight}
                               width={barWidth}
                               height={expenseHeight}
@@ -287,11 +363,11 @@ const FinancePage = () => {
                             
                             {/* Profit bar */}
                             <rect
-                              x={x + (barWidth + 2) * 2}
+                              x={x + (barWidth + 2) * 3}
                               y={200 - profitHeight}
                               width={barWidth}
                               height={profitHeight}
-                              fill={day.profit >= 0 ? "#10b981" : "#ef4444"}
+                              fill={(day.profit || 0) >= 0 ? "#10b981" : "#ef4444"}
                               opacity="0.8"
                             />
                           </g>
@@ -302,7 +378,7 @@ const FinancePage = () => {
                 </div>
                 
                 {/* X-axis labels */}
-                <div className="h-16 flex justify-between items-center mt-4">
+                <div className="h-20 flex justify-between items-center mt-4">
                   {statsData.map((day, index) => (
                     <div key={index} className="flex-1 text-center">
                       <div className="text-xs text-gray-600 font-medium">
@@ -310,7 +386,8 @@ const FinancePage = () => {
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
                         <div className="text-blue-600">DT: {formatCurrency(day.revenue)}</div>
-                        <div className="text-red-600">CP: {formatCurrency(day.expense)}</div>
+                        <div className="text-orange-600">CP: {formatCurrency(day.cost)}</div>
+                        <div className="text-red-600">CH: {formatCurrency(day.expense)}</div>
                         <div className={getProfitColor(day.profit)}>LN: {formatCurrency(day.profit)}</div>
                       </div>
                     </div>
@@ -326,8 +403,12 @@ const FinancePage = () => {
                 <span className="text-sm text-gray-600">Doanh Thu</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-red-500 rounded"></div>
+                <div className="w-4 h-4 bg-orange-500 rounded"></div>
                 <span className="text-sm text-gray-600">Chi Phí</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 bg-red-500 rounded"></div>
+                <span className="text-sm text-gray-600">Chi Phí Vận Hành</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 bg-green-500 rounded"></div>
@@ -385,7 +466,7 @@ const FinancePage = () => {
             </div>
             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
               <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold text-gray-800">Tổng Chi Phí</span>
+                <span className="text-lg font-semibold text-gray-800">Tổng Chi Phí Vận Hành</span>
                 <span className="text-xl font-bold text-red-600">{formatCurrency(expenses.total)}</span>
               </div>
             </div>
@@ -397,11 +478,12 @@ const FinancePage = () => {
             <div className="space-y-6">
               <div className="text-center p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Biên Lợi Nhuận</h3>
-                <div className={`text-3xl font-bold ${getProfitColor(summary.profit)}`}>
-                  {summary.profitMargin}
+                <div className={`text-3xl font-bold ${getProfitColor(actualProfit)}`}>
+                  {actualProfitMargin}
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  {summary.profit >= 0 ? 'Doanh nghiệp có lãi' : 'Doanh nghiệp đang lỗ'}
+                  {actualProfit === null ? 'Chưa có dữ liệu chi phí' : 
+                   actualProfit >= 0 ? 'Doanh nghiệp có lãi' : 'Doanh nghiệp đang lỗ'}
                 </p>
               </div>
 
@@ -414,23 +496,21 @@ const FinancePage = () => {
                   <p className="text-xs text-gray-500">/ {period === 'daily' ? 'ngày' : 'tháng'}</p>
                 </div>
 
-                <div className="text-center p-4 bg-red-50 rounded-lg">
+                <div className="text-center p-4 bg-orange-50 rounded-lg">
                   <h4 className="text-sm font-medium text-gray-700 mb-1">Chi Phí TB</h4>
-                  <div className="text-lg font-bold text-red-600">
-                    {formatCurrency(Math.round(summary.totalExpenses / Math.max(statsData.length, 1)))}
+                  <div className="text-lg font-bold text-orange-600">
+                    {summary.totalCost !== null ? formatCurrency(Math.round(summary.totalCost / Math.max(statsData.length, 1))) : 'N/A'}
                   </div>
                   <p className="text-xs text-gray-500">/ {period === 'daily' ? 'ngày' : 'tháng'}</p>
                 </div>
               </div>
 
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <h4 className="text-sm font-medium text-gray-700 mb-1">Tỷ Lệ Chi Phí/Doanh Thu</h4>
-                <div className="text-lg font-bold text-purple-600">
-                  {((summary.totalExpenses / Math.max(summary.totalRevenue, 1)) * 100).toFixed(1)}%
+              <div className="text-center p-4 bg-red-50 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 mb-1">Chi Phí Vận Hành TB</h4>
+                <div className="text-lg font-bold text-red-600">
+                  {formatCurrency(Math.round(summary.totalExpenses / Math.max(statsData.length, 1)))}
                 </div>
-                <p className="text-xs text-gray-500">
-                  {summary.totalExpenses > summary.totalRevenue ? 'Chi phí cao hơn doanh thu' : 'Chi phí thấp hơn doanh thu'}
-                </p>
+                <p className="text-xs text-gray-500">/ {period === 'daily' ? 'ngày' : 'tháng'}</p>
               </div>
             </div>
           </div>
@@ -440,28 +520,37 @@ const FinancePage = () => {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <h2 className="text-lg font-semibold text-gray-800 mb-6">Sản Phẩm Bán Chạy</h2>
           <div className="space-y-4">
-            {topSellingProducts.map((item, index) => (
-              <div key={item.product._id} className="flex items-center p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-                <div className="flex-shrink-0 w-16 h-16 mr-4">
-                  <img 
-                    src={item.product.images[0]} 
-                    alt={item.product.name}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
+            {topSellingProducts.map((item, index) => {
+              const itemProfit = calculateProfit(item.revenue, item.cost);
+              const itemProfitMargin = calculateProfitMargin(item.revenue, item.cost);
+              
+              return (
+                <div key={item.product._id} className="flex items-center p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                  <div className="flex-shrink-0 w-16 h-16 mr-4">
+                    <img 
+                      src={item.product.images[0]} 
+                      alt={item.product.name}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-medium text-gray-900 truncate">{item.product.name}</h3>
+                    <p className="text-sm text-gray-500">Số lượng: {item.quantity}</p>
+                    <p className="text-xs text-gray-400">
+                      Lợi nhuận: {formatCurrency(itemProfit)} ({itemProfitMargin})
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900">{formatCurrency(item.revenue)}</p>
+                    <p className="text-xs text-gray-500">Đơn giá: {formatCurrency(item.product.price)}</p>
+                    <p className="text-xs text-gray-400">Chi phí: {formatCurrency(item.cost)}</p>
+                  </div>
+                  <div className="ml-4 w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <span className="text-yellow-600 font-bold text-sm">#{index + 1}</span>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-gray-900 truncate">{item.product.name}</h3>
-                  <p className="text-sm text-gray-500">Số lượng: {item.quantity}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">{formatCurrency(item.revenue)}</p>
-                  <p className="text-xs text-gray-500">Đơn giá: {formatCurrency(item.product.price)}</p>
-                </div>
-                <div className="ml-4 w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <span className="text-yellow-600 font-bold text-sm">#{index + 1}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -472,19 +561,22 @@ const FinancePage = () => {
             <div className="text-center p-6 bg-blue-50 rounded-lg">
               <h3 className="text-lg font-semibold text-blue-800 mb-2">Tình Hình Chung</h3>
               <div className="text-2xl font-bold text-blue-600 mb-2">
-                {summary.profit >= 0 ? '📈 Tích Cực' : '📉 Cần Cải Thiện'}
+                {actualProfit === null ? '❓ Chưa Rõ' : 
+                 actualProfit >= 0 ? '📈 Tích Cực' : '📉 Cần Cải Thiện'}
               </div>
               <p className="text-sm text-blue-700">
-                {summary.profit >= 0 
-                  ? 'Doanh nghiệp đang hoạt động có lãi' 
-                  : 'Cần tối ưu chi phí và tăng doanh thu'}
+                {actualProfit === null 
+                  ? 'Cần cập nhật dữ liệu chi phí để đánh giá chính xác' 
+                  : actualProfit >= 0 
+                    ? 'Doanh nghiệp đang hoạt động có lãi' 
+                    : 'Cần tối ưu chi phí và tăng doanh thu'}
               </p>
             </div>
 
             <div className="text-center p-6 bg-green-50 rounded-lg">
               <h3 className="text-lg font-semibold text-green-800 mb-2">Hiệu Quả Kinh Doanh</h3>
               <div className="text-2xl font-bold text-green-600 mb-2">
-                {summary.totalOrders > 0 ? `${summary.totalProductsSold / summary.totalOrders}` : '0'} SP/ĐH
+                {summary.totalOrders > 0 ? `${(summary.totalProductsSold / summary.totalOrders).toFixed(1)}` : '0'} SP/ĐH
               </div>
               <p className="text-sm text-green-700">
                 Trung bình sản phẩm trên mỗi đơn hàng
@@ -494,12 +586,15 @@ const FinancePage = () => {
             <div className="text-center p-6 bg-purple-50 rounded-lg">
               <h3 className="text-lg font-semibold text-purple-800 mb-2">Khuyến Nghị</h3>
               <div className="text-lg font-bold text-purple-600 mb-2">
-                {summary.profit >= 0 ? '🎯 Duy Trì' : '⚡ Tối Ưu'}
+                {actualProfit === null ? '📝 Cập Nhật' : 
+                 actualProfit >= 0 ? '🎯 Duy Trì' : '⚡ Tối Ưu'}
               </div>
               <p className="text-sm text-purple-700">
-                {summary.profit >= 0 
-                  ? 'Tiếp tục chiến lược hiện tại' 
-                  : 'Cần cắt giảm chi phí và tăng doanh thu'}
+                {actualProfit === null 
+                  ? 'Cần nhập dữ liệu chi phí sản phẩm để phân tích chính xác' 
+                  : actualProfit >= 0 
+                    ? 'Tiếp tục chiến lược hiện tại' 
+                    : 'Cần cắt giảm chi phí và tăng doanh thu'}
               </p>
             </div>
           </div>

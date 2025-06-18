@@ -84,7 +84,7 @@ const AdminDashboard = () => {
               }`
             }
           >
-            Thống kê doanh thu
+            Thống Kê Bán Hàng
           </NavLink>
           <NavLink
             to="/admin/finance"
