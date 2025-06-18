@@ -69,7 +69,7 @@ const AdminDashboard = () => {
           </NavLink>
 
           <NavLink
-            to="/admin/statistics"
+            to="/admin/employees"
             className={({ isActive }) =>
               `block px-4 py-2 rounded-md ${isActive ? "bg-blue-500 text-white" : "text-gray-700 hover:bg-gray-200"
               }`
@@ -86,6 +86,17 @@ const AdminDashboard = () => {
           >
             Thống kê doanh thu
           </NavLink>
+          <NavLink
+            to="/admin/finance"
+            className={({ isActive }) =>
+              `block px-4 py-2 rounded-md ${isActive ? "bg-blue-500 text-white" : "text-gray-700 hover:bg-gray-200"
+              }`
+            }
+          >
+            Thống kê tài chính
+          </NavLink>
+
+          
         </nav>
       </aside>
 

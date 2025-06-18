@@ -25,6 +25,9 @@ import AdCategory from './pages/ad_category';
 import AdColor from './pages/ad_color';
 import AdSize from './pages/ad_size';
 import AdUser from './pages/ad_users'
+import AdStatistics from './pages/ad_statistics'
+import AdFinance from './pages/ad_finance'
+
 // import AdUser from './pages/ad_users';
 const App = () => {
   return (
@@ -57,7 +60,8 @@ const App = () => {
           <Route path='colors' element={<AdColor />} />
           <Route path='sizes' element={<AdSize />} />
           <Route path='customers' element={<AdUser />} />
-          {/* <Route path='users' element={<AdUser />} /> */}
+          <Route path='statistics' element={<AdStatistics />} />
+          <Route path='finance' element={<AdFinance />} />
         </Route>
 
 
