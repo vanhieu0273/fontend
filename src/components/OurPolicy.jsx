@@ -6,18 +6,18 @@ const OurPolicy = () => {
     <div className='flex flex-col sm:flex-row justify-around gap-12 sm:gap-2 text-center py-20 text-xs sm:text-sm md:text-base text-gray-700'>
         <div>
             <img src={assets.exchange_icon} className='w-12 m-auto mb-5' alt="" />
-            <p className='font-semibold'>Easy Exchange Policy</p>
-            <p className='text-gray-400'>We offer hassel free exchange policy </p>
+            <p className='font-semibold'>Chính sách đổi trả dễ dàng</p>
+            <p className='text-gray-400'>Chúng tôi cung cấp chính sách đổi trả miễn phí </p>
         </div>
         <div>
             <img src={assets.quality_icon} className='w-12 m-auto mb-5' alt="" />
-            <p className='font-semibold'>7 days return policy</p>
-            <p className='text-gray-400'>We provied 7 days free  return policy </p>
+            <p className='font-semibold'>Chính sách đổi trả trong vòng 7 ngày</p>
+            <p className='text-gray-400'>Chúng tôi cung cấp chính sách đổi trả miễn phí trong 7 ngày</p>
         </div>
         <div>
             <img src={assets.support_img} className='w-12 m-auto mb-5' alt="" />
-            <p className='font-semibold'>Best customer support</p>
-            <p className='text-gray-400'>We provied 24/7 customes support </p>
+            <p className='font-semibold'>Hỗ trợ khách hàng tốt nhất</p>
+            <p className='text-gray-400'>Chúng tôi cung cấp hỗ trợ khách hàng 24/7</p>
         </div>
     </div>
   )

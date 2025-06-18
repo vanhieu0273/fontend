@@ -6,26 +6,28 @@ import { Pagination } from "antd";
 const PAGE_SIZE = 10;
 
 const AdCategory = () => {
-  const [categories, setCategories] = useState([]);
+  const [allCategories, setAllCategories] = useState([]); // Tất cả danh mục
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [editData, setEditData] = useState(null); // null = thêm mới
+  const [editData, setEditData] = useState(null);
   const [formData, setFormData] = useState({ name: "", description: "" });
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
+  const totalPage = Math.ceil(allCategories.length / PAGE_SIZE);
 
-  const fetchCategories = async (page = 1) => {
+  // Cắt dữ liệu theo trang hiện tại
+  const paginatedData = allCategories.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
+  const fetchCategories = async () => {
     setLoading(true);
     try {
-      const res = await axiosInstance.get("/category", {
-        params: { page, limit: PAGE_SIZE },
-      });
-      // Giả sử API trả về { data: [...], totalPages, currentPage }
-      setCategories(Array.isArray(res.data.data) ? res.data.data : []);
-      setTotalPage(Number(res.data?.totalPages) || 1);
-      setCurrentPage(Number(res.data?.currentPage) || 1);
+      const res = await axiosInstance.get("/category");
+      const allData = Array.isArray(res.data.data) ? res.data.data : [];
+      setAllCategories(allData);
     } catch (err) {
       console.error("Lỗi khi lấy danh sách danh mục:", err);
     } finally {
@@ -34,9 +36,8 @@ const AdCategory = () => {
   };
 
   useEffect(() => {
-    fetchCategories(currentPage);
-    // eslint-disable-next-line
-  }, [currentPage]);
+    fetchCategories();
+  }, []);
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -47,7 +48,7 @@ const AdCategory = () => {
     if (!window.confirm("Bạn có chắc muốn xóa danh mục này?")) return;
     try {
       await axiosInstance.delete(`/category/${id}`);
-      fetchCategories(currentPage);
+      fetchCategories();
     } catch (err) {
       console.error("Lỗi khi xóa danh mục:", err);
       alert("Xóa danh mục thất bại.");
@@ -72,7 +73,7 @@ const AdCategory = () => {
         await axiosInstance.post(`/category`, formData);
       }
       setShowForm(false);
-      fetchCategories(currentPage);
+      fetchCategories();
     } catch (err) {
       console.error("Lỗi khi lưu danh mục:", err);
       alert("Lưu danh mục thất bại.");
@@ -114,20 +115,22 @@ const AdCategory = () => {
                   Đang tải dữ liệu...
                 </td>
               </tr>
-            ) : categories.length === 0 ? (
+            ) : paginatedData.length === 0 ? (
               <tr>
                 <td colSpan="4" className="text-center py-4">
                   Không có danh mục nào
                 </td>
               </tr>
             ) : (
-              categories.map((category) => (
+              paginatedData.map((category) => (
                 <tr key={category._id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-2 border">{category.name}</td>
                   <td className="px-4 py-2 border">
                     {category.description || "Không có mô tả"}
                   </td>
-                  <td className="px-4 py-2 border">{formatDate(category.createdAt)}</td>
+                  <td className="px-4 py-2 border">
+                    {category.createdAt ? formatDate(category.createdAt) : "—"}
+                  </td>
                   <td className="px-4 py-2 flex gap-4">
                     <button
                       className="text-gray-500 hover:text-blue-800"
@@ -153,7 +156,7 @@ const AdCategory = () => {
       <div className="flex justify-center mt-8">
         <Pagination
           current={currentPage}
-          total={totalPage * PAGE_SIZE}
+          total={allCategories.length}
           pageSize={PAGE_SIZE}
           onChange={handlePageChange}
           showSizeChanger={false}
@@ -164,7 +167,6 @@ const AdCategory = () => {
       {showForm && (
         <div className="fixed inset-0 bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg w-[800px] relative max-h-[90vh] overflow-auto shadow-lg">
-            {/* Nút đóng */}
             <button
               onClick={() => setShowForm(false)}
               className="absolute top-2 right-2 text-gray-500 hover:text-black"
@@ -184,11 +186,12 @@ const AdCategory = () => {
                   type="text"
                   className="w-full border px-3 py-2 rounded"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="VD: Áo khoác gió"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">Nhập tên danh mục rõ ràng.</p>
               </div>
 
               <div>
@@ -202,7 +205,6 @@ const AdCategory = () => {
                   }
                   placeholder="VD: Danh mục sản phẩm thời trang"
                 />
-                <p className="text-xs text-gray-500 mt-1">Mô tả chi tiết danh mục (có thể để trống).</p>
               </div>
 
               <div className="flex justify-end gap-3">

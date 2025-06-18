@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ShopContext } from "../../../context/ShopContextReal";
-import { assets } from "../../../assets/frontend_assets/assets";
+// import { assets } from "../../../assets/frontend_assets/assets";
 import axiosInstance from "../../../config/axios";
 import { FaChevronLeft, FaChevronRight, FaStar, FaRegStar } from "react-icons/fa";
 
-export default function ProductDetail() {
+export default function   ProductDetail() {
   const { productId } = useParams();
   const { addToCart } = useContext(ShopContext);
 
@@ -315,7 +315,7 @@ export default function ProductDetail() {
               }`}
             disabled={isAddToCartDisabled}
           >
-            ADD TO CART
+            THÊM VÀO GIỎ HÀNG
           </button>
 
           <hr className="mt-8 sm:w-4/5" />
