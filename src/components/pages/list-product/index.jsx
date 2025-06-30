@@ -36,7 +36,6 @@ export default function ListProduct() {
   // Lấy giá trị của tham số 'search'
   const searchValue = searchParams.get('search');
 
-  console.log('search', searchValue);
 
   const getListProducts = async () => {
     setLoadingFetchData(true);

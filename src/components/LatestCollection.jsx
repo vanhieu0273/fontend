@@ -84,7 +84,7 @@ const LatestCollection = () => {
 
     fetchProducts();
   }, []);
-  console.log('latestProducts', latestProducts);
+
   
   return (
     <div className='my-10'>

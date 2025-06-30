@@ -27,6 +27,7 @@ import AdSize from './pages/ad_size';
 import AdUser from './pages/ad_users'
 import AdStatistics from './pages/ad_statistics'
 import AdFinance from './pages/ad_finance'
+import AdAdmin from './pages/ad_admin';
 
 // import AdUser from './pages/ad_users';
 const App = () => {
@@ -61,6 +62,7 @@ const App = () => {
           <Route path='customers' element={<AdUser />} />
           <Route path='statistics' element={<AdStatistics />} />
           <Route path='finance' element={<AdFinance />} />
+          <Route path='employees' element={<AdAdmin />} />
         </Route>
 
 

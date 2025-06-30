@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 const Navbar = () => {
   const { user, logout } = useAuth();
 
-  console.log('user', user);
   const navigate = useNavigate();
 
   const [visible, setVisible] = useState(false);

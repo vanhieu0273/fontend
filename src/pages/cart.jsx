@@ -13,7 +13,6 @@ const Cart = () => {
   const [cartData, setCartData] = useState([]);
 
   useEffect(() => {
-    console.log('cartItems:', cartItems);
     setCartData(cartItems);
   }, [cartItems]);
 
