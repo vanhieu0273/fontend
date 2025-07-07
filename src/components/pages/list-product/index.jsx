@@ -204,7 +204,7 @@ export default function ListProduct() {
             onChange={(e) => setSortType(e.target.value)}
             className="border-2 boder-gray-300 text-sm px-2"
           >
-            <option value="relavent">Liên quan</option>
+            <option value="relavent">Sản Phẩm</option>
             <option value="low-high">Giá Tăng Dần</option>
             <option value="high-low">Giá Giảm Dần</option>
           </select>
